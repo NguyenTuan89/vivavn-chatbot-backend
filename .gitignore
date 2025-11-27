@@ -1,7 +1,7 @@
 # Bỏ qua file môi trường ảo
-.venv/
-venv/
-__pycache__/
+.env
+.venv
+__pycache__
 
 # Bỏ qua file cấu hình bí mật (QUAN TRỌNG NHẤT)
 .envgit add .
