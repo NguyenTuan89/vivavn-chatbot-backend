@@ -7,7 +7,7 @@ class Config(BaseSettings):
 
     # --- NHÓM 2: CÓ GIÁ TRỊ MẶC ĐỊNH (Không bắt buộc trong .env) ---
     # Đây là cái em đang THIẾU:
-    MODEL_NAME: str = "gemini-3-pro-preview"
+    MODEL_NAME: str = "gemini-flash-latest"
 
     # Tên file kiến thức (Lưu ý: Phải khớp với tên file thật em đang có)
     KNOWLEDGE_FILE: str = "vivavn_full_knowledge.md"

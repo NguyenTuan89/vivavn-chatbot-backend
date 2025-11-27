@@ -1,28 +1,101 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // 1. TẠO GIAO DIỆN HTML BẰNG JS
+    // ============================================================
+    // 1. CẤU HÌNH GIAO DIỆN (Sử dụng Inline Style để tránh xung đột)
+    // ============================================================
     const chatContainer = document.createElement("div");
     chatContainer.id = "viva-chatbot-container";
-    chatContainer.className = "fixed bottom-4 right-4 z-50 font-sans";
+    // Z-index cao nhất có thể để đè lên mọi thứ
+    chatContainer.style.cssText = "position: fixed; bottom: 20px; right: 20px; z-index: 2147483647; font-family: sans-serif;";
+
     chatContainer.innerHTML = `
-        <button id="chat-toggle-btn" class="bg-vivavn text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl cursor-pointer transform transition duration-300 hover:scale-110">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <!-- NÚT MỞ CHAT -->
+        <button id="chat-toggle-btn" style="
+            background-color: #38a169;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        ">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
         </button>
-        <div id="chat-box" class="hidden absolute bottom-20 right-0 w-80 md:w-96 h-[500px] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden transform scale-95 opacity-0 transition duration-300">
-            <div class="bg-vivavn text-white p-4 flex justify-between items-center shadow-md">
-                <div class="flex items-center"><span class="text-xl font-bold mr-2">Vivavn Product Support</span><span class="text-sm">🌱</span></div>
-                <button id="chat-close-btn" class="text-white hover:text-gray-200"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+
+        <!-- HỘP CHAT (Mặc định ẩn bằng display: none) -->
+        <div id="chat-box" style="
+            display: none;
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            overflow: hidden;
+            flex-direction: column;
+            border: 1px solid #e5e7eb;
+        ">
+
+            <!-- Header -->
+            <div style="background-color: #38a169; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-weight: bold; font-size: 16px;">Vivavn Product Support</span>
+                    <span>🌱</span>
+                </div>
+                <button id="chat-close-btn" style="background: none; border: none; color: white; cursor: pointer; padding: 5px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
-            <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50"><div class="flex justify-start"><div class="bg-gray-200 text-gray-800 p-3 rounded-xl rounded-tl-none max-w-[85%] shadow-sm chat-bubble-bot">Hello! I'm Vivavn's AI assistant. I can help you with Vietnamese products today. 🇻🇳</div></div></div>
-            <div class="p-3 border-t border-gray-200 flex items-center bg-white">
-                <input type="text" id="user-input" placeholder="Type your question..." class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-vivavn focus:ring-1 focus:ring-vivavn">
-                <button id="send-btn" class="btn-vivavn text-white p-3 ml-2 rounded-lg flex items-center justify-center disabled:opacity-50" disabled><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 15 2 11 22 2"></polygon></svg></button>
+
+            <!-- Messages Area -->
+            <div id="chat-messages" style="flex: 1; padding: 15px; overflow-y: auto; background-color: #f9fafb;">
+                <div style="display: flex; justify-content: flex-start; margin-bottom: 10px;">
+                    <div style="background-color: #e5e7eb; color: #1f2937; padding: 10px 15px; border-radius: 12px; border-top-left-radius: 0; max-width: 85%; font-size: 14px; line-height: 1.5;">
+                        Hello! I'm Vivavn's AI assistant. I can help you with Vietnamese products today. 🇻🇳
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div style="padding: 15px; border-top: 1px solid #e5e7eb; display: flex; align-items: center; background: white;">
+                <input type="text" id="user-input" placeholder="Type your question..." style="
+                    flex: 1;
+                    padding: 10px;
+                    border: 1px solid #d1d5db;
+                    border-radius: 8px;
+                    outline: none;
+                    font-size: 14px;
+                ">
+                <button id="send-btn" disabled style="
+                    background-color: #38a169;
+                    color: white;
+                    padding: 10px 12px;
+                    margin-left: 8px;
+                    border-radius: 8px;
+                    border: none;
+                    cursor: pointer;
+                    opacity: 0.5;
+                    transition: opacity 0.2s;
+                ">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 15 2 11 22 2"></polygon></svg>
+                </button>
             </div>
         </div>
     `;
     document.body.appendChild(chatContainer);
 
-    // 2. LOGIC JAVASCRIPT
+    // ============================================================
+    // 2. LOGIC JAVASCRIPT (Xử lý sự kiện)
+    // ============================================================
     const API_URL = "https://vivavn-chatbot-backend.onrender.com/chat";
+
+    // Lấy các element
     const chatBox = document.getElementById('chat-box');
     const messagesContainer = document.getElementById('chat-messages');
     const inputField = document.getElementById('user-input');
@@ -30,35 +103,51 @@ document.addEventListener("DOMContentLoaded", function() {
     const toggleBtn = document.getElementById('chat-toggle-btn');
     const closeBtn = document.getElementById('chat-close-btn');
 
-    // Event Listeners
-    inputField.addEventListener('input', () => { sendButton.disabled = inputField.value.trim() === ''; });
-    inputField.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
-    toggleBtn.addEventListener('click', toggleChat);
-    closeBtn.addEventListener('click', toggleChat);
-    sendButton.addEventListener('click', sendMessage);
-
+    // --- Logic Toggle (Ẩn/Hiện) CỨNG ---
     function toggleChat() {
-        const isHidden = chatBox.classList.contains('hidden');
-        if (isHidden) {
-            chatBox.classList.remove('hidden');
+        // Kiểm tra xem đang ẩn hay hiện bằng style inline
+        if (chatBox.style.display === 'none' || chatBox.style.display === '') {
+            chatBox.style.display = 'flex'; // Mở ra
+            // Cuộn xuống cuối và focus vào ô nhập liệu
             setTimeout(() => {
-                chatBox.classList.remove('scale-95', 'opacity-0');
-                chatBox.classList.add('scale-100', 'opacity-100');
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 inputField.focus();
-            }, 10);
+            }, 50);
         } else {
-            chatBox.classList.remove('scale-100', 'opacity-100');
-            chatBox.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => { chatBox.classList.add('hidden'); }, 300);
+            chatBox.style.display = 'none'; // Đóng lại
         }
     }
 
+    // Gán sự kiện click cho nút tròn và nút X
+    toggleBtn.addEventListener('click', toggleChat);
+    closeBtn.addEventListener('click', toggleChat);
+
+    // --- Logic Gửi Tin Nhắn ---
+    inputField.addEventListener('input', () => {
+        // Bật/tắt nút gửi dựa trên nội dung
+        const isEmpty = inputField.value.trim() === '';
+        sendButton.disabled = isEmpty;
+        sendButton.style.opacity = isEmpty ? '0.5' : '1';
+        sendButton.style.cursor = isEmpty ? 'not-allowed' : 'pointer';
+    });
+
+    inputField.addEventListener('keypress', (e) => {
+        if(e.key === 'Enter') sendMessage();
+    });
+
+    sendButton.addEventListener('click', sendMessage);
+
+    // Hàm thêm tin nhắn vào giao diện
     function appendMessage(sender, text) {
-        const messageClass = sender === 'user' ? 'justify-end' : 'justify-start';
-        const bubbleClass = sender === 'user' ? 'chat-bubble-user text-white rounded-br-none' : 'bg-gray-200 text-gray-800 rounded-tl-none chat-bubble-bot';
+        const isUser = sender === 'user';
+        const align = isUser ? 'flex-end' : 'flex-start';
+        const bg = isUser ? '#38a169' : '#e5e7eb';
+        const color = isUser ? 'white' : '#1f2937';
+        const radius = isUser ? 'border-bottom-right-radius: 0' : 'border-top-left-radius: 0';
+
+        // Icon logic
         let iconPrefix = '';
-        if (sender === 'bot') {
+        if (!isUser) {
             const lower = text.toLowerCase();
             if (lower.includes('sorry') || lower.includes('error')) iconPrefix = '⚠️ ';
             else if (lower.includes('price') || lower.includes('cost')) iconPrefix = '💰 ';
@@ -66,37 +155,60 @@ document.addEventListener("DOMContentLoaded", function() {
             else if (text.includes('<a href')) iconPrefix = '🔗 ';
             else iconPrefix = '✅ ';
         }
-        let formattedText = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="text-vivavn hover:underline font-medium">$1</a>');
+
+        // Format Markdown Link & Bold
+        let formattedText = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color: #007bff; text-decoration: underline;">$1</a>');
         formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
         formattedText = formattedText.replace(/\n/g, '<br>');
 
-        const html = `<div class="flex ${messageClass}"><div class="p-3 rounded-xl max-w-[85%] shadow-sm ${bubbleClass}">${iconPrefix}${formattedText}</div></div>`;
-        messagesContainer.innerHTML += html;
+        const html = `
+            <div style="display: flex; justify-content: ${align}; margin-bottom: 10px;">
+                <div style="background-color: ${bg}; color: ${color}; padding: 10px 15px; border-radius: 12px; ${radius}; max-width: 85%; font-size: 14px; line-height: 1.5; word-wrap: break-word;">
+                    ${iconPrefix}${formattedText}
+                </div>
+            </div>`;
+
+        messagesContainer.insertAdjacentHTML('beforeend', html);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
+    // Hàm gọi API
     async function sendMessage() {
         const text = inputField.value.trim();
         if (!text) return;
+
+        // 1. Hiện tin nhắn user
         appendMessage('user', text);
         inputField.value = '';
         sendButton.disabled = true;
+        sendButton.style.opacity = '0.5';
 
+        // 2. Hiện loading
         const loadingId = 'loading-' + Date.now();
-        messagesContainer.innerHTML += `<div id="${loadingId}" class="flex justify-start"><div class="text-sm text-gray-500 italic p-3"><span class="animate-pulse">Bot is typing...</span></div></div>`;
+        messagesContainer.insertAdjacentHTML('beforeend', `<div id="${loadingId}" style="display: flex; justify-content: flex-start; margin-bottom: 10px;"><div style="color: #6b7280; font-style: italic; font-size: 13px;">Bot is typing...</div></div>`);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
         try {
+            // 3. Gọi Backend
             const res = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: text })
             });
+
             if (!res.ok) throw new Error(res.status === 503 ? "Server sleeping 503" : `Status ${res.status}`);
+
             const data = await res.json();
+
+            // 4. Xóa loading và hiện tin nhắn Bot
             document.getElementById(loadingId).remove();
-            if (data.reply) appendMessage('bot', data.reply);
-            else appendMessage('bot', `❌ Error: No reply data.`);
+
+            if (data.reply) {
+                appendMessage('bot', data.reply);
+            } else {
+                appendMessage('bot', `❌ Error: No reply data.`);
+            }
+
         } catch (error) {
             document.getElementById(loadingId)?.remove();
             let msg = 'Connection error.';
@@ -104,7 +216,8 @@ document.addEventListener("DOMContentLoaded", function() {
             appendMessage('bot', msg);
         } finally {
             sendButton.disabled = false;
-            inputField.focus();
+            sendButton.style.opacity = '1';
+            inputField.focus(); // Focus lại để gõ tiếp
         }
     }
 });
