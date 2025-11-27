@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     // ============================================================
-    // 1. CẤU HÌNH GIAO DIỆN (Sử dụng Inline Style để tránh xung đột)
+    // 1. CẤU HÌNH GIAO DIỆN (Sử dụng Inline Style để tránh xung đột.)
     // ============================================================
     const chatContainer = document.createElement("div");
     chatContainer.id = "viva-chatbot-container";
