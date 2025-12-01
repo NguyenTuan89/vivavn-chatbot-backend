@@ -1,137 +1,153 @@
-(function () {
-    // 1. Định nghĩa hàm khởi tạo (Logic chính)
-    function initChatbot() {
-        // Chống trùng lặp: Nếu đã có bot rồi thì thôi
-        if (document.getElementById("viva-chatbot-container")) return;
+(function() {
+    // --- 1. HÀM KHỞI TẠO CHÍNH (LOGIC CỦA EM) ---
+    function initVivaChatbot() {
+        // Chống trùng lặp: Nếu bot đã hiện rồi thì thôi, không tạo thêm
+        if (document.getElementById('viva-chatbot-container')) {
+            console.log("⚠️ Chatbot already exists. Skipping.");
+            return;
+        }
 
-        console.log("🚀 VivaVN Chatbot: Starting initialization...");
+        console.log("🚀 VivaVN Chatbot: STARTING INJECTION...");
 
-        // --- PHẦN HTML & CSS (Giữ nguyên logic của em) ---
-        var chatContainer = document.createElement("div");
-        chatContainer.id = "viva-chatbot-container";
-        chatContainer.className = "fixed bottom-4 right-4 z-[2147483647] font-sans"; // Tailwind classes
-        chatContainer.innerHTML = `
-            <button id="chat-toggle-btn" class="bg-[#38a169] text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl cursor-pointer hover:scale-110 transition-transform duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        // --- A. TẠO HTML ---
+        var div = document.createElement('div');
+        div.id = 'viva-chatbot-container';
+        // Dùng CSS cứng (Hard-coded) để không phụ thuộc Tailwind
+        div.style.cssText = "position: fixed; bottom: 20px; right: 20px; z-index: 2147483647; font-family: sans-serif;";
+
+        div.innerHTML = `
+            <style>
+                /* CSS Nội bộ đảm bảo hiển thị đúng 100% */
+                .viva-btn { width: 60px; height: 60px; background: #38a169; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; transition: transform 0.3s; }
+                .viva-btn:hover { transform: scale(1.1); background: #2f855a; }
+                .viva-box { display: none; position: absolute; bottom: 80px; right: 0; width: 350px; height: 500px; background: white; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); flex-direction: column; border: 1px solid #e5e7eb; overflow: hidden; }
+                .viva-header { background: #38a169; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+                .viva-msgs { flex: 1; padding: 15px; overflow-y: auto; background: #f9fafb; display: flex; flex-direction: column; gap: 10px; }
+                .viva-input-area { padding: 15px; border-top: 1px solid #eee; display: flex; gap: 5px; background: white; }
+                .viva-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+                .viva-send { background: #38a169; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+
+                /* Tin nhắn */
+                .msg-row { display: flex; width: 100%; }
+                .msg-row.user { justify-content: flex-end; }
+                .msg-row.bot { justify-content: flex-start; }
+                .msg-bubble { padding: 10px 14px; border-radius: 10px; max-width: 80%; font-size: 14px; line-height: 1.4; }
+                .msg-bubble.user { background: #38a169; color: white; border-bottom-right-radius: 0; }
+                .msg-bubble.bot { background: #e5e7eb; color: #333; border-bottom-left-radius: 0; }
+            </style>
+
+            <!-- Nút Chat Tròn -->
+            <button id="viva-toggle" class="viva-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
             </button>
 
-            <div id="chat-box" class="hidden absolute bottom-20 right-0 w-[350px] max-w-[90vw] h-[500px] bg-white rounded-xl shadow-2xl flex flex-col border border-gray-200 overflow-hidden">
-                <div class="bg-[#38a169] p-4 flex justify-between items-center text-white">
-                    <span class="font-bold flex items-center gap-2">🌱 Vivavn Support</span>
-                    <button id="chat-close-btn" class="hover:text-gray-200 text-xl font-bold">&times;</button>
+            <!-- Hộp Chat -->
+            <div id="viva-box" class="viva-box">
+                <div class="viva-header">
+                    <span>🌱 VivaVN Assistant</span>
+                    <button id="viva-close" style="background:none;border:none;color:white;font-size:20px;cursor:pointer;">&times;</button>
                 </div>
-
-                <div id="chat-messages" class="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-3">
-                    <div class="flex justify-start">
-                        <div class="bg-gray-200 text-gray-800 p-3 rounded-lg rounded-bl-none max-w-[85%] text-sm">
-                            Xin chào! Tôi là trợ lý ảo AI của Vivavn. Tôi có thể giúp gì cho bạn về các sản phẩm Eco? 🌿
-                        </div>
+                <div id="viva-messages" class="viva-msgs">
+                    <div class="msg-row bot">
+                        <div class="msg-bubble bot">Chào bạn! Tôi là trợ lý ảo của VivaVN. Bạn cần tìm sản phẩm xanh nào? 🌿</div>
                     </div>
                 </div>
-
-                <div class="p-3 border-t bg-white flex gap-2">
-                    <input type="text" id="user-input" placeholder="Nhập câu hỏi..." class="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#38a169]">
-                    <button id="send-btn" class="bg-[#38a169] text-white px-4 py-2 rounded-lg hover:bg-[#2f855a] transition-colors">
-                        ➤
-                    </button>
+                <div class="viva-input-area">
+                    <input type="text" id="viva-input" class="viva-input" placeholder="Nhập câu hỏi...">
+                    <button id="viva-send" class="viva-send">➤</button>
                 </div>
             </div>
         `;
-        document.body.appendChild(chatContainer);
+        document.body.appendChild(div);
+        console.log("✅ HTML Injected into DOM");
 
-        // --- PHẦN JAVASCRIPT LOGIC (QUAN TRỌNG) ---
-        // Lấy elements sau khi đã append vào DOM
-        var toggleBtn = document.getElementById("chat-toggle-btn");
-        var chatBox = document.getElementById("chat-box");
-        var closeBtn = document.getElementById("chat-close-btn");
-        var sendBtn = document.getElementById("send-btn");
-        var userInput = document.getElementById("user-input");
-        var messagesDiv = document.getElementById("chat-messages");
+        // --- B. GẮN SỰ KIỆN (LOGIC JS) ---
+        var toggleBtn = document.getElementById('viva-toggle');
+        var box = document.getElementById('viva-box');
+        var closeBtn = document.getElementById('viva-close');
+        var sendBtn = document.getElementById('viva-send');
+        var input = document.getElementById('viva-input');
+        var msgs = document.getElementById('viva-messages');
 
-        // Logic Bật/Tắt
         function toggleChat() {
-            chatBox.classList.toggle("hidden");
-            if (!chatBox.classList.contains("hidden")) {
-                userInput.focus();
-            }
+            var isHidden = box.style.display === 'none' || box.style.display === '';
+            box.style.display = isHidden ? 'flex' : 'none';
+            if (isHidden) input.focus();
         }
 
-        toggleBtn.addEventListener("click", toggleChat);
-        closeBtn.addEventListener("click", toggleChat);
+        toggleBtn.addEventListener('click', toggleChat);
+        closeBtn.addEventListener('click', toggleChat);
 
-        // Logic Gửi tin (Call API)
         async function sendMessage() {
-            var text = userInput.value.trim();
-            if (!text) return;
+            var txt = input.value.trim();
+            if (!txt) return;
 
-            // 1. Hiển thị tin nhắn user
-            messagesDiv.innerHTML += `
-                <div class="flex justify-end">
-                    <div class="bg-[#38a169] text-white p-3 rounded-lg rounded-br-none max-w-[85%] text-sm">
-                        ${text}
-                    </div>
-                </div>`;
-            userInput.value = "";
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            // 1. Hiện tin user
+            msgs.innerHTML += `<div class="msg-row user"><div class="msg-bubble user">${txt}</div></div>`;
+            input.value = '';
+            msgs.scrollTop = msgs.scrollHeight;
 
-            // 2. Hiển thị loading
-            var loadingId = "loading-" + Date.now();
-            messagesDiv.innerHTML += `
-                <div id="${loadingId}" class="flex justify-start">
-                    <div class="bg-gray-200 text-gray-500 p-3 rounded-lg rounded-bl-none text-xs italic">
-                        Đang suy nghĩ...
-                    </div>
-                </div>`;
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            // 2. Hiện loading
+            var loadingId = 'loading-' + Date.now();
+            msgs.innerHTML += `<div id="${loadingId}" class="msg-row bot"><div class="msg-bubble bot" style="color:gray;font-style:italic;">Đang suy nghĩ...</div></div>`;
+            msgs.scrollTop = msgs.scrollHeight;
 
             try {
-                // GỌI API BACKEND CỦA EM
-                var response = await fetch("https://vivavn-chatbot-backend.onrender.com/chat", {
+                console.log("📡 Calling API...");
+                // GỌI API BACKEND
+                var res = await fetch("https://vivavn-chatbot-backend.onrender.com/chat", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: text }) // API của em đang nhận key là "message" đúng không?
+                    body: JSON.stringify({ message: txt })
                 });
 
-                var data = await response.json();
+                var data = await res.json();
                 document.getElementById(loadingId).remove();
 
-                // 3. Hiển thị tin nhắn Bot
-                var botReply = data.reply || "Xin lỗi, hệ thống đang bận.";
+                var reply = data.reply || "Xin lỗi, server đang bận.";
+                reply = reply.replace(/\n/g, '<br>'); // Xuống dòng
+                reply = reply.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color:blue;text-decoration:underline;">$1</a>'); // Link
 
-                // Format link Markdown [text](url) thành thẻ <a> (nếu cần)
-                botReply = botReply.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="text-blue-600 underline font-bold">$1</a>');
-                // Format xuống dòng
-                botReply = botReply.replace(/\n/g, '<br>');
-
-                messagesDiv.innerHTML += `
-                    <div class="flex justify-start">
-                        <div class="bg-gray-200 text-gray-800 p-3 rounded-lg rounded-bl-none max-w-[85%] text-sm">
-                            ${botReply}
-                        </div>
-                    </div>`;
-
+                msgs.innerHTML += `<div class="msg-row bot"><div class="msg-bubble bot">${reply}</div></div>`;
             } catch (err) {
-                console.error("Chatbot Error:", err);
+                console.error(err);
                 document.getElementById(loadingId).remove();
-                messagesDiv.innerHTML += `<div class="text-red-500 text-xs p-2">Lỗi kết nối server.</div>`;
+                msgs.innerHTML += `<div class="msg-row bot"><div class="msg-bubble bot" style="color:red;">Lỗi kết nối: ${err.message}</div></div>`;
             }
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            msgs.scrollTop = msgs.scrollHeight;
         }
 
-        sendBtn.addEventListener("click", sendMessage);
-        userInput.addEventListener("keypress", function (e) {
-            if (e.key === "Enter") sendMessage();
+        sendBtn.addEventListener('click', sendMessage);
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
         });
-
-        console.log("✅ VivaVN Chatbot: Events attached successfully!");
     }
 
-    // 2. Cơ chế "Check tàu" (Kiểm tra trạng thái load trang)
-    if (document.readyState === "loading") {
-        // Nếu trang đang tải, thì đợi
-        document.addEventListener("DOMContentLoaded", initChatbot);
+    // --- 2. CƠ CHẾ KÍCH HOẠT THÔNG MINH (QUAN TRỌNG NHẤT) ---
+    // Kiểm tra xem trang đã tải xong chưa.
+    // Nếu xong rồi (complete/interactive) -> CHẠY NGAY.
+    // Nếu chưa (loading) -> Đợi sự kiện.
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        initVivaChatbot();
     } else {
-        // Nếu trang đã tải xong rồi, CHẠY NGAY LẬP TỨC
-        initChatbot();
+        document.addEventListener('DOMContentLoaded', initVivaChatbot);
     }
+
 })();
+```
+
+**Bước 5:** Bấm **Commit changes** (Nút xanh lá).
+
+---
+
+### BƯỚC CUỐI CÙNG: CẬP NHẬT WORDPRESS ĐỂ KÉO CODE MỚI
+
+Vào WordPress > Widget Custom HTML, sửa lại số phiên bản `v=` thành một số khác (ví dụ `2024`) để ép trình duyệt tải file mới em vừa sửa trên GitHub.
+
+```html
+<!-- CHATBOT VIVAVN -->
+<!-- 1. Thư viện Tailwind (để hỗ trợ các phần khác nếu cần) -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- 2. Gọi file script (Thay đổi số v= để ép update) -->
+<script src="https://cdn.jsdelivr.net/gh/NguyenTuan89/vivavn-chatbot-backend@main/chatbot.js?v=FINAL_FIX_2024"></script>
