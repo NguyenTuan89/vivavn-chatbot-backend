@@ -141,7 +141,7 @@
 
                 <div id="viva-messages" class="viva-msgs">
                     <div class="msg-row bot">
-                        <div class="msg-bubble bot">Chào bạn! 👋<br>Tôi là trợ lý ảo của VivaVN. Bạn cần tìm sản phẩm xanh nào hôm nay? 🌿</div>
+                        <div class="msg-bubble bot">Hello! 👋 I’m the virtual assistant of VivaVN. How may I assist you today? 🌿</div>
                     </div>
                 </div>
 
