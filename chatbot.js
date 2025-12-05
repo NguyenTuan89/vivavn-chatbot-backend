@@ -1,27 +1,26 @@
 (function() {
-    // --- 1. HÀM KHỞI TẠO CHÍNH (CORE LOGIC) ---
+    // --- 1. CORE INITIALIZATION FUNCTION ---
     function initVivaChatbot() {
-        // Chống trùng lặp: Nếu bot đã hiện rồi thì hủy bỏ ngay
+        // Prevent duplicates
         if (document.getElementById('viva-chatbot-container')) {
             console.log("⚠️ Chatbot already exists. Skipping injection.");
             return;
         }
 
-        console.log("🚀 VivaVN Chatbot: STARTING INJECTION...");
+        console.log("🚀 VivaVN Chatbot: STARTING INJECTION (US Version)...");
 
-        // --- A. TẠO HTML & CSS CỨNG (HARD-CODED) ---
-        // Tạo container và nhúng CSS trực tiếp để đảm bảo hiển thị 100%
+        // --- A. CREATE HARD-CODED HTML & CSS ---
         var div = document.createElement('div');
         div.id = 'viva-chatbot-container';
-        // Z-Index cao nhất hệ mặt trời để đè lên mọi theme WordPress
+        // Highest Z-Index to overlay everything
         div.style.cssText = "position: fixed; bottom: 20px; right: 20px; z-index: 2147483647; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;";
 
         div.innerHTML = `
             <style>
-                /* CSS Nội bộ đảm bảo hiển thị đúng bất chấp CSS của Theme */
+                /* Internal CSS to ensure 100% correct display regardless of Theme */
                 .viva-btn {
                     width: 60px; height: 60px;
-                    background: #38a169; /* Màu xanh thương hiệu */
+                    background: #38a169; /* Brand Green */
                     border-radius: 50%;
                     box-shadow: 0 4px 12px rgba(0,0,0,0.25);
                     border: none; cursor: pointer;
@@ -97,7 +96,7 @@
                 }
                 .viva-send:hover { background: #2f855a; }
 
-                /* Bong bóng chat */
+                /* Chat Bubbles */
                 .msg-row { display: flex; width: 100%; }
                 .msg-row.user { justify-content: flex-end; }
                 .msg-row.bot { justify-content: flex-start; }
@@ -125,12 +124,12 @@
                 .msg-bubble a { color: #2563eb; text-decoration: underline; font-weight: 500; }
             </style>
 
-            <!-- Nút Chat Tròn -->
+            <!-- Toggle Button -->
             <button id="viva-toggle" class="viva-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
             </button>
 
-            <!-- Hộp Chat -->
+            <!-- Chat Box -->
             <div id="viva-box" class="viva-box">
                 <div class="viva-header">
                     <div style="display:flex; align-items:center; gap:8px;">
@@ -146,18 +145,18 @@
                 </div>
 
                 <div class="viva-input-area">
-                    <input type="text" id="viva-input" class="viva-input" placeholder="Nhập tin nhắn...">
+                    <input type="text" id="viva-input" class="viva-input" placeholder="Type a message...">
                     <button id="viva-send" class="viva-send">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                     </button>
                 </div>
-                <div style="font-size:10px; text-align:center; color:#9ca3af; padding-bottom:5px; background:white;">Powered by Gemini AI</div>
+                <div style="font-size:10px; text-align:center; color:#9ca3af; padding-bottom:5px; background:white;">Powered by Vivavn team</div>
             </div>
         `;
         document.body.appendChild(div);
         console.log("✅ VivaVN Chatbot: HTML Injected into DOM successfully");
 
-        // --- B. GẮN SỰ KIỆN (JAVASCRIPT LOGIC) ---
+        // --- B. EVENT LISTENERS & LOGIC ---
         var toggleBtn = document.getElementById('viva-toggle');
         var box = document.getElementById('viva-box');
         var closeBtn = document.getElementById('viva-close');
@@ -180,22 +179,22 @@
         toggleBtn.addEventListener('click', toggleChat);
         closeBtn.addEventListener('click', toggleChat);
 
-        // 2. Gửi tin nhắn
+        // 2. Send Message
         async function sendMessage() {
             var txt = input.value.trim();
             if (!txt) return;
 
-            // Hiện tin user
+            // Show User Message
             msgs.innerHTML += `<div class="msg-row user"><div class="msg-bubble user">${txt}</div></div>`;
             input.value = '';
             msgs.scrollTop = msgs.scrollHeight;
 
-            // Hiện loading
+            // Show Loading Indicator
             var loadingId = 'loading-' + Date.now();
             msgs.innerHTML += `
                 <div id="${loadingId}" class="msg-row bot">
                     <div class="msg-bubble bot" style="color:#6b7280; font-style:italic; display:flex; gap:4px; align-items:center;">
-                        <span>Đang suy nghĩ</span>
+                        <span>Thinking</span>
                         <span style="animation:blink 1s infinite">.</span><span style="animation:blink 1s infinite 0.2s">.</span><span style="animation:blink 1s infinite 0.4s">.</span>
                     </div>
                 </div>
@@ -204,7 +203,7 @@
             msgs.scrollTop = msgs.scrollHeight;
 
             try {
-                // GỌI API BACKEND
+                // CALL BACKEND API
                 var res = await fetch("https://vivavn-chatbot-backend.onrender.com/chat", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -216,9 +215,9 @@
                 var data = await res.json();
                 document.getElementById(loadingId).remove();
 
-                var reply = data.reply || "Xin lỗi, server trả về dữ liệu trống.";
+                var reply = data.reply || "Sorry, the server returned empty data.";
 
-                // Format Markdown cơ bản
+                // Basic Markdown Formatting
                 reply = reply.replace(/\n/g, '<br>');
                 reply = reply.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
                 reply = reply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -231,7 +230,7 @@
                 msgs.innerHTML += `
                     <div class="msg-row bot">
                         <div class="msg-bubble bot" style="color:#ef4444; background:#fef2f2; border-color:#fecaca;">
-                            <strong>Lỗi kết nối:</strong> Server có thể đang khởi động (đợi 30s).<br>
+                            <strong>Connection Error:</strong> Server might be waking up (please wait 30s).<br>
                             <small>${err.message}</small>
                         </div>
                     </div>`;
@@ -245,8 +244,7 @@
         });
     }
 
-    // --- 2. CƠ CHẾ KÍCH HOẠT THÔNG MINH (SMART TRIGGER) ---
-    // Đảm bảo bot luôn chạy dù trang load nhanh hay chậm
+    // --- 2. SMART TRIGGER MECHANISM ---
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
         initVivaChatbot();
     } else {
