@@ -4,7 +4,7 @@
         // Prevent duplicates
         if (document.getElementById('viva-chatbot-container')) return;
 
-        console.log("🚀 VivaVN Chatbot: STARTING INJECTION (Ads Safe Mode)...");
+        console.log("🚀 VivaVN Chatbot: STARTING INJECTION (Mobile 250px Test)...");
 
         // --- A. LANGUAGE DETECTION ---
         var userLang = (navigator.language || navigator.userLanguage || 'en').substring(0, 2).toLowerCase();
@@ -23,16 +23,16 @@
         var div = document.createElement('div');
         div.id = 'viva-chatbot-container';
 
-        // KỸ THUẬT: Đưa Container về 0x0 pixel để Google Ads không phát hiện ra sự chiếm dụng không gian
+        // Ghost Mode: 0x0 pixel để không ảnh hưởng Google Ads
         div.style.cssText = "position: fixed; bottom: 0; right: 0; width: 0; height: 0; overflow: visible; z-index: 2147483647; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;";
 
         div.innerHTML = `
             <style>
-                /* --- ELEMENT POSITIONING (TỰ ĐỊNH VỊ) --- */
+                /* --- ELEMENT POSITIONING --- */
 
-                /* 1. Nút Chat (Desktop) */
+                /* 1. Desktop (Giữ nguyên) */
                 .viva-btn {
-                    position: fixed; /* Tự định vị, không phụ thuộc Container 0x0 */
+                    position: fixed;
                     bottom: 20px;
                     right: 20px;
                     width: 60px; height: 60px;
@@ -43,14 +43,13 @@
                     display: flex; align-items: center; justify-content: center;
                     color: white;
                     transition: transform 0.3s;
-                    pointer-events: auto; /* Bật lại tương tác chuột */
+                    pointer-events: auto;
                 }
                 .viva-btn:hover { transform: scale(1.1); background: #2f855a; }
 
-                /* 2. Hộp Chat (Desktop) */
                 .viva-box {
                     display: none;
-                    position: fixed; /* Tự định vị */
+                    position: fixed;
                     bottom: 90px;
                     right: 20px;
                     width: 350px; height: 500px;
@@ -64,20 +63,20 @@
                     pointer-events: auto;
                 }
 
-                /* --- MOBILE OPTIMIZATION (NÉ QUẢNG CÁO) --- */
+                /* --- 2. MOBILE EXTREME POSITIONING (250PX) --- */
                 @media (max-width: 768px) {
-                    /* Đẩy nút chat lên cao hẳn 110px.
-                       Quảng cáo Google thường cao 50-90px.
-                       Khoảng dư này đảm bảo an toàn tuyệt đối. */
+                    /* Đẩy nút chat lên cao 250px theo yêu cầu */
                     .viva-btn {
-                        bottom: 110px !important;
+                        bottom: 250px !important;
                         right: 15px !important;
                     }
 
+                    /* Hộp chat phải nằm trên nút chat (250 + 65 = 315px) */
                     .viva-box {
                         width: 300px !important;
-                        height: 60vh !important; /* Chiều cao linh hoạt */
-                        bottom: 175px !important; /* Nằm trên nút chat */
+                        /* Giảm chiều cao hộp chat để không bị che mất phần trên màn hình */
+                        height: 50vh !important;
+                        bottom: 315px !important;
                         right: 15px !important;
                     }
                 }
@@ -202,11 +201,3 @@
         document.addEventListener('DOMContentLoaded', initVivaChatbot);
     }
 })();
-```
-
-### BƯỚC THỰC HIỆN CỨNG RẮN
-
-1.  **Commit & Push** file này lên Repo Public của em (`vivavn-assets` hoặc cái nào em đang dùng).
-2.  **Cập nhật WordPress:** Đổi version thành `?v=ADS_SAFE_01`.
-    ```html
-    <script src="https://cdn.jsdelivr.net/gh/NguyenTuan89/vivavn-assets@main/chatbot.js?v=ADS_SAFE_01"></script>
