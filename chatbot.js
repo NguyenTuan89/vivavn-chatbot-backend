@@ -7,17 +7,39 @@
             return;
         }
 
-        console.log("🚀 VivaVN Chatbot: STARTING INJECTION (US Version)...");
+        console.log("🚀 VivaVN Chatbot: STARTING INJECTION (Mobile Ads Fix)...");
 
         // --- A. CREATE HARD-CODED HTML & CSS ---
         var div = document.createElement('div');
         div.id = 'viva-chatbot-container';
-        // Highest Z-Index to overlay everything
-        div.style.cssText = "position: fixed; bottom: 20px; right: 20px; z-index: 2147483647; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;";
+
+        // QUAN TRỌNG: Tôi đã bỏ 'bottom: 20px; right: 20px' ở đây để đưa vào CSS Media Query bên dưới
+        div.style.cssText = "position: fixed; z-index: 2147483647; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;";
 
         div.innerHTML = `
             <style>
-                /* Internal CSS to ensure 100% correct display regardless of Theme */
+                /* --- 1. RESPONSIVE POSITIONING (SỬA LỖI CHE QUẢNG CÁO) --- */
+                /* Mặc định cho Desktop */
+                #viva-chatbot-container {
+                    bottom: 20px;
+                    right: 20px;
+                }
+
+                /* Mobile: Màn hình nhỏ hơn 768px -> Đẩy lên cao để né quảng cáo */
+                @media (max-width: 768px) {
+                    #viva-chatbot-container {
+                        bottom: 90px !important; /* Đẩy lên 90px để né thanh quảng cáo */
+                        right: 15px !important;
+                    }
+                    /* Điều chỉnh kích thước khung chat trên mobile cho vừa vặn hơn */
+                    .viva-box {
+                        width: 300px !important;
+                        height: 450px !important;
+                        bottom: 70px !important; /* Cách nút bấm một chút */
+                    }
+                }
+
+                /* --- 2. STANDARD STYLES --- */
                 .viva-btn {
                     width: 60px; height: 60px;
                     background: #38a169; /* Brand Green */
@@ -124,12 +146,10 @@
                 .msg-bubble a { color: #2563eb; text-decoration: underline; font-weight: 500; }
             </style>
 
-            <!-- Toggle Button -->
             <button id="viva-toggle" class="viva-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
             </button>
 
-            <!-- Chat Box -->
             <div id="viva-box" class="viva-box">
                 <div class="viva-header">
                     <div style="display:flex; align-items:center; gap:8px;">
