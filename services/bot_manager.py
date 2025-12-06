@@ -26,7 +26,7 @@ class VivavnBot:
     async def chat(self, user_message: str):
         # BƯỚC 1: GỌI AI TRƯỚC (Phải có cái này mới có câu trả lời)
         # Gán kết quả vào một biến, ví dụ 'bot_response'
-        bot_response = self.ai.generate_response(
+        bot_response = await self.ai.generate_response(
             user_msg=user_message,
             knowledge_uri=self.kb.get_uri()
         )

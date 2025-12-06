@@ -28,7 +28,7 @@ class KnowledgeBase:
     def upload(self):
         print(f"📂 Đang tải kiến thức từ {self.file_path}...")
         try:
-            self.uploaded_file = self.client.files.upload(file=self.file_path)
+            self.uploaded_file = self.client.files.upload(file=self.file_path) # Hàm này trả về một đối tượng File. Đối tượng File mà Google trả về là metadata của file đã upload, gồm: name, uri, mime_type...
             print(f"✅ Upload xong. URI: {self.uploaded_file.uri}")
         except Exception as e:
             print(f"❌ Lỗi Upload: {e}")
@@ -36,7 +36,7 @@ class KnowledgeBase:
 
     def cleanup(self):
         if self.uploaded_file:
-            self.client.files.delete(name=self.uploaded_file.name)
+            self.client.files.delete(name=self.uploaded_file.name) #Hàm này không chỉ xóa file rồi im lặng, mà nó trả về một object thuộc class DeleteFileResponse. Đây là một object chứa thông tin về kết quả xóa file như: File đã được xóa chưa?
             print("🧹 Đã dọn dẹp file kiến thức.")
 
     def get_uri(self):

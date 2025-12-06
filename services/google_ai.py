@@ -1,5 +1,5 @@
 from google import genai
-from google.genai import types
+from google.genai import types #Một module chứa các class để gửi dữ liệu vào Google GenAI
 
 
 class AIEngine:
@@ -20,7 +20,7 @@ class AIEngine:
         Với thông tin liên quan bạn hãy dẫn link bài viết để khách hàng có click vào đọc trực tiếp trong website vivavn
         """
 
-    def generate_response(self, user_msg: str, knowledge_uri: str = None, tools: list = None):
+    async def generate_response(self, user_msg: str, knowledge_uri: str = None, tools: list = None):
         """
         Hàm xử lý chính: Nhận câu hỏi -> Gửi Google -> Trả về câu trả lời.
         """
@@ -30,12 +30,12 @@ class AIEngine:
         parts_list = []
 
         # A. Nếu có file kiến thức (RAG), nhét nó vào gói hàng trước
-        if knowledge_uri:
+        if knowledge_uri: #Nếu người dùng đã upload file và API trả về một file_uri. knowledge_uri chính là đường dẫn đại diện cho file đã upload lên server của Google.
             # Xác định loại file (Ở đây mặc định là Markdown .md vì em đang dùng knowledge.md)
             # Nếu sau này em dùng PDF, em cần truyền mime_type="application/pdf"
             parts_list.append(
-                types.Part(
-                    file_data=types.FileData(
+                types.Part( #Đây là một phần trong request gửi lên API.
+                    file_data=types.FileData( #Thông tin chi tiết về file cần gửi.
                         file_uri=knowledge_uri,
                         mime_type="text/markdown"
                     )
@@ -59,19 +59,18 @@ class AIEngine:
             print(f"🤖 Bot đang suy nghĩ... (Model: {self.model_name})")
 
             # Tạo nội dung gửi đi
-            contents = [
-                types.Content(
-                    role="user",
+            contents = [ #Đây là danh sách (list) gồm các message. #contents luôn luôn là một list trong Google GenAI SDK.
+                types.Content( #Đây là đối tượng đại diện cho 1 message gửi vào mô hình.
+                    role="user", # "user" Nghĩa là tin nhắn đến từ người dùng. Nếu role="model" là AI trả lời
                     parts=parts_list
                 )
             ]
 
-            response = self.client.models.generate_content(
+            response = await self.client.aio.models.generate_content(
                 model=self.model_name,
                 contents=contents,
                 config=generate_config
             )
-
             # Trả về văn bản kết quả
             return response.text
 
