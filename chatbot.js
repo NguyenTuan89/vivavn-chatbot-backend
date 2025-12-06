@@ -7,42 +7,59 @@
             return;
         }
 
-        console.log("🚀 VivaVN Chatbot: STARTING INJECTION (Mobile Ads Fix)...");
+        console.log("🚀 VivaVN Chatbot: STARTING INJECTION (Multi-Language + Mobile Fix)...");
 
-        // --- A. CREATE HARD-CODED HTML & CSS ---
+        // --- A. ADVANCED LANGUAGE DETECTION (LOCALIZATION MAP) ---
+        // Lấy 2 ký tự đầu của mã ngôn ngữ (ví dụ 'en-US' -> 'en', 'vi-VN' -> 'vi')
+        var userLang = (navigator.language || navigator.userLanguage || 'en').substring(0, 2).toLowerCase();
+
+        // BẢN ĐỒ NGÔN NGỮ (Thêm ngôn ngữ mới vào đây nếu muốn)
+        var greetings = {
+            'en': "Hello! 👋 I’m the virtual assistant of VivaVN. Ask me in your language, and I'll reply in yours! 🌿",
+            'vi': "Xin chào! 👋 Tôi là trợ lý ảo VivaVN. Hãy hỏi tôi bằng tiếng Việt, tôi sẽ trả lời ngay! 🌿",
+            'fr': "Bonjour! 👋 Je suis l'assistant de VivaVN. Posez votre question en français ! 🌿", // Pháp
+            'ja': "こんにちは！👋 VivaVNのアシスタントです。日本語で質問してください！🌿", // Nhật
+            'zh': "你好！👋 我是VivaVN的虚拟助手。请用中文向我提问！🌿", // Trung
+            'ko': "안녕하세요! 👋 VivaVN 가상 비서입니다. 한국어로 질문해 주세요! 🌿", // Hàn
+            'de': "Hallo! 👋 Ich bin der virtuelle Assistent von VivaVN. Fragen Sie mich auf Deutsch! 🌿" // Đức
+        };
+
+        // Lấy câu chào tương ứng. Nếu không tìm thấy ngôn ngữ (ví dụ Tiếng Nga), dùng mặc định 'en'
+        var welcomeMsg = greetings[userLang] || greetings['en'];
+
+        // --- B. CREATE HARD-CODED HTML & CSS ---
         var div = document.createElement('div');
         div.id = 'viva-chatbot-container';
 
-        // QUAN TRỌNG: Tôi đã bỏ 'bottom: 20px; right: 20px' ở đây để đưa vào CSS Media Query bên dưới
         div.style.cssText = "position: fixed; z-index: 2147483647; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;";
 
         div.innerHTML = `
             <style>
-                /* --- 1. RESPONSIVE POSITIONING (SỬA LỖI CHE QUẢNG CÁO) --- */
-                /* Mặc định cho Desktop */
+                /* --- RESPONSIVE POSITIONING (MOBILE ADS FIX) --- */
+                /* Desktop */
                 #viva-chatbot-container {
                     bottom: 20px;
                     right: 20px;
                 }
 
-                /* Mobile: Màn hình nhỏ hơn 768px -> Đẩy lên cao để né quảng cáo */
+                /* Mobile (< 768px): Đẩy lên cao để né quảng cáo */
                 @media (max-width: 768px) {
                     #viva-chatbot-container {
-                        bottom: 90px !important; /* Đẩy lên 90px để né thanh quảng cáo */
+                        bottom: 90px !important;
                         right: 15px !important;
                     }
-                    /* Điều chỉnh kích thước khung chat trên mobile cho vừa vặn hơn */
                     .viva-box {
                         width: 300px !important;
                         height: 450px !important;
-                        bottom: 70px !important; /* Cách nút bấm một chút */
+                        bottom: 80px !important;
+                        right: 0 !important;
                     }
                 }
 
-                /* --- 2. STANDARD STYLES --- */
+                /* --- STANDARD STYLES --- */
                 .viva-btn {
                     width: 60px; height: 60px;
-                    background: #38a169; /* Brand Green */
+                    background: #38a169;
                     border-radius: 50%;
                     box-shadow: 0 4px 12px rgba(0,0,0,0.25);
                     border: none; cursor: pointer;
@@ -146,10 +163,12 @@
                 .msg-bubble a { color: #2563eb; text-decoration: underline; font-weight: 500; }
             </style>
 
+            <!-- Toggle Button -->
             <button id="viva-toggle" class="viva-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
             </button>
 
+            <!-- Chat Box -->
             <div id="viva-box" class="viva-box">
                 <div class="viva-header">
                     <div style="display:flex; align-items:center; gap:8px;">
@@ -160,7 +179,8 @@
 
                 <div id="viva-messages" class="viva-msgs">
                     <div class="msg-row bot">
-                        <div class="msg-bubble bot">Hello! 👋 I’m the virtual assistant of VivaVN. How may I assist you today? 🌿</div>
+                        <!-- CÂU CHÀO ĐÃ ĐƯỢC TỰ ĐỘNG HÓA -->
+                        <div class="msg-bubble bot">${welcomeMsg}</div>
                     </div>
                 </div>
 
@@ -176,7 +196,7 @@
         document.body.appendChild(div);
         console.log("✅ VivaVN Chatbot: HTML Injected into DOM successfully");
 
-        // --- B. EVENT LISTENERS & LOGIC ---
+        // --- C. EVENT LISTENERS & LOGIC ---
         var toggleBtn = document.getElementById('viva-toggle');
         var box = document.getElementById('viva-box');
         var closeBtn = document.getElementById('viva-close');
