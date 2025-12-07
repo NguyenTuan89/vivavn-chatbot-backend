@@ -13,7 +13,7 @@
                 welcome: "Hello! 👋 My name is <strong>Kai</strong>, VivaVN's chatbot. What do you need help with? 🤖<br><br><i>If you don't know English, please ask in your language!</i> 🌍",
                 cta: "Hi! I'm Kai. Need help?"
             },
-            // CÁC NGÔN NGỮ KHÁC (Vẫn giữ để tối ưu trải nghiệm nếu khách dùng trình duyệt ngôn ngữ đó)
+            // CÁC NGÔN NGỮ KHÁC
             'vi': {
                 welcome: "Xin chào! 👋 Tôi là <strong>Kai</strong>, chatbot của VivaVN. Bạn cần tôi giúp gì? 🤖<br><br>Hãy hỏi tôi bằng bất kỳ ngôn ngữ nào! 🇻🇳",
                 cta: "Bạn cần hỗ trợ?"
@@ -27,7 +27,7 @@
         // Logic: Nếu không tìm thấy ngôn ngữ, dùng 'en' (Kai)
         var langData = greetings[userLang] || greetings['en'];
 
-        // --- B. CREATE CONTAINER (GHOST MODE - ADS SAFE) ---
+        // --- B. CREATE CONTAINER ---
         var div = document.createElement('div');
         div.id = 'viva-chatbot-container';
         div.style.cssText = "position: fixed; bottom: 0; right: 0; width: 0; height: 0; overflow: visible; z-index: 2147483647; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;";
@@ -92,11 +92,12 @@
                 }
                 @keyframes viva-slide-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-                /* --- MOBILE FIX (Ads Safe) --- */
+                /* --- MOBILE FIX (Updated: Normal Position) --- */
+                /* Đã đưa về vị trí chuẩn: cách đáy 20px */
                 @media (max-width: 768px) {
-                    .viva-btn { bottom: 110px !important; right: 15px !important; }
+                    .viva-btn { bottom: 20px !important; right: 15px !important; }
                     .viva-cta { display: none; }
-                    .viva-box { width: 300px !important; height: 60vh !important; bottom: 180px !important; right: 15px !important; }
+                    .viva-box { width: 300px !important; height: 60vh !important; bottom: 95px !important; right: 15px !important; }
                 }
 
                 /* Standard Styles */
